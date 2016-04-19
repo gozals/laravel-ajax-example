@@ -1,13 +1,11 @@
-$(document).ready(function(){
-
-
+$(document).ready(function() {
     //display modal form for task editing
-    $('.open-modal').click(function(){
+    $(document).on('click', '.open-modal', function () {
         var task_id = $(this).val();
-
+        console.log('called');
         $.get(url + '/' + task_id, function (data) {
             //success data
-            console.log(data);
+            //console.log(data);
             $('#task_id').val(data.id);
             $('#task').val(data.task);
             $('#description').val(data.description);
@@ -18,23 +16,23 @@ $(document).ready(function(){
     });
 
     //display modal form for creating new task
-    $('#btn-add').click(function(){
+    $('#btn-add').on('click', function () {
         $('#btn-save').val("add");
         $('#frmTasks').trigger("reset");
         $('#myModal').modal('show');
     });
 
     //delete task and remove it from list
-    $('.delete-task').click(function(){
+    $(document).on("click", '.delete-task', function () {
         var task_id = $(this).val();
 
         $.ajax({
 
             type: "DELETE",
             url: url + '/' + task_id,
-            headers: {'X-CSRF-TOKEN': csrf_token },
+            headers: {'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')},
             success: function (data) {
-                console.log(data);
+                //console.log(data);
 
                 $("#task" + task_id).remove();
             },
@@ -45,10 +43,10 @@ $(document).ready(function(){
     });
 
     //create new task / update existing task
-    $("#btn-save").click(function (e) {
+    $("#btn-save").on("click", function (e) {
         $.ajaxSetup({
             headers: {
-                'X-CSRF-TOKEN': csrf_token
+                'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
             }
         })
 
@@ -66,31 +64,30 @@ $(document).ready(function(){
         var task_id = $('#task_id').val();
         var my_url = url;
 
-        if (state == "update"){
+        if (state == "update") {
             type = "PUT"; //for updating existing resource
             my_url += '/' + task_id;
         }
 
-        console.log(formData);
+        //console.log(formData);
 
         $.ajax({
-
             type: type,
             url: my_url,
             data: formData,
             dataType: 'json',
             success: function (data) {
-                console.log(data);
+                //console.log(data);
 
                 var task = '<tr id="task' + data.id + '"><td>' + data.id + '</td><td>' + data.task + '</td><td>' + data.description + '</td><td>' + data.created_at + '</td>';
                 task += '<td><button class="btn btn-warning btn-xs btn-detail open-modal" value="' + data.id + '">Edit</button>';
                 task += '<button class="btn btn-danger btn-xs btn-delete delete-task" value="' + data.id + '">Delete</button></td></tr>';
 
-                if (state == "add"){ //if user added a new record
+                if (state == "add") { //if user added a new record
                     $('#tasks-list').append(task);
-                }else{ //if user updated an existing record
+                } else { //if user updated an existing record
 
-                    $("#task" + task_id).replaceWith( task );
+                    $("#task" + task_id).replaceWith(task);
                 }
 
                 $('#frmTasks').trigger("reset");

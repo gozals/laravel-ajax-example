@@ -80,7 +80,6 @@
 @section('js')
     <script>
         var url = "{{ URL::to('/tasks') }}";
-        var csrf_token =  "{!! csrf_token() !!}";
     </script>
     <script src="{{asset('js/ajax-crud.js')}}"></script>
 @endsection

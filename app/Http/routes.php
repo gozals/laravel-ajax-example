@@ -17,38 +17,42 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/home', function () {
-    $tasks = \App\Task::all();
-    return View::make('home')->with('tasks',$tasks);
-});
-
 Route::auth();
 
-Route::get('/tasks/{task_id?}',function($task_id){
-    $task = \App\Task::find($task_id);
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/home', function () {
+        $tasks = \App\Task::all();
+        return View::make('home')->with('tasks',$tasks);
+    });
 
-    return Response::json($task);
+    Route::get('/tasks/{task_id?}',function($task_id){
+        $task = \App\Task::find($task_id);
+
+        return Response::json($task);
+    });
+
+    Route::post('/tasks',function(Request $request){
+        $task = \App\Task::create($request->all());
+
+        return Response::json($task);
+    });
+
+    Route::put('/tasks/{task_id?}',function(Request $request,$task_id){
+        $task = \App\Task::find($task_id);
+
+        $task->task = $request->task;
+        $task->description = $request->description;
+
+        $task->save();
+
+        return Response::json($task);
+    });
+
+    Route::delete('/tasks/{task_id?}',function($task_id){
+        $task = \App\Task::destroy($task_id);
+
+        return Response::json($task);
+    });
 });
 
-Route::post('/tasks',function(Request $request){
-    $task = \App\Task::create($request->all());
 
-    return Response::json($task);
-});
-
-Route::put('/tasks/{task_id?}',function(Request $request,$task_id){
-    $task = \App\Task::find($task_id);
-
-    $task->task = $request->task;
-    $task->description = $request->description;
-
-    $task->save();
-
-    return Response::json($task);
-});
-
-Route::delete('/tasks/{task_id?}',function($task_id){
-    $task = \App\Task::destroy($task_id);
-
-    return Response::json($task);
-});
